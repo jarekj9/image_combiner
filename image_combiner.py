@@ -2,7 +2,6 @@
 
 import os
 import math
-import argparse
 from typing import List, Callable
 from PIL import Image, ImageColor
 from gooey import Gooey
@@ -39,7 +38,7 @@ class ImageCombiner:
         row_combined = Image.new("RGB", (1, 1), (255, 255, 255))
         image_rows = math.ceil(len(files) / row_images_count)
 
-        print(f'Files: {len(files)}, image rows: {image_rows}, images in row: {row_images_count}')
+        print(f'Files: {len(files)}, image rows: {image_rows}, images in row: {row_images_count}', flush=True)
         for row_index in range(image_rows):
             next_range_start = row_index * row_images_count
             next_range_stop = row_index * row_images_count + row_images_count
@@ -60,7 +59,7 @@ class ImageCombiner:
             combine_method = self.combine_horizontal
         im_combined = Image.new("RGB", (1, 1), (255, 255, 255))
         for image_index in range(len(files)):
-            print(f'Processing image: {image_index + 1} of {len(files)} in row, Name: {files[image_index]}', end=', ')
+            print(f'Processing image: {image_index + 1} of {len(files)} in row, Name: {files[image_index]}', end=', ', flush=True)
             im = Image.open(files[image_index])
             print(f'Spec: {im.format}, {im.height}x{im.width}')
             if image_index == 0:
@@ -78,7 +77,6 @@ def give_filenames(name: str):
         if name.lower() in file.lower():
             filenames.append(file)
     return filenames
-
 
 @Gooey(show_restart_button=False)
 def main():
