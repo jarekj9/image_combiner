@@ -6,7 +6,7 @@ Combines all images in local folder vertically/horizontally or in custom rectang
 Accepts jpg, png, bmp, gif. Outputs jpg.
 Uses simple automatic GUI based on argparse configuration.
 
-To use in cli mode use with --ignore-gooey argument.
+To use in cli mode use with `--ignore-gooey` argument.
 
 Included .exe file has been compiled with pyinstaller.
 
