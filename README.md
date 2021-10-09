@@ -6,6 +6,8 @@ Combines all images in local folder vertically/horizontally or in custom rectang
 Accepts jpg, png, bmp, gif. Outputs jpg.
 Uses simple automatic GUI based on argparse configuration.
 
-![Screenshot](screenshot.jpg?raw=true "Screenshot")
+Included .exe file has been compiled with pyinstaller.
+
+![Screenshot](screenshot.png?raw=true "Screenshot")
 
 ![Screenshot](combined.jpg?raw=true "Screenshot")
