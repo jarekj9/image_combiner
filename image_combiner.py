@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import math
 from typing import List, Callable
 from PIL import Image, ImageColor
@@ -92,7 +93,7 @@ def main():
     for format in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
         files += give_filenames(format)
     if not files:
-        exit('There are no supported image files in the folder.')
+        sys.exit('There are no supported image files in the folder.')
 
     separator_color = ImageColor.getcolor(args.separator_color, "RGB")
 
