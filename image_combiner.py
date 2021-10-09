@@ -1,11 +1,12 @@
-#!/usr/bin/bash
+#!/usr/bin/env python
 
 import os
 import math
 import argparse
 from typing import List, Callable
-from PIL import Image
+from PIL import Image, ImageColor
 from gooey import Gooey
+from gooey import GooeyParser
 
 
 class ImageCombiner:
@@ -79,13 +80,13 @@ def give_filenames(name: str):
     return filenames
 
 
-@Gooey
+@Gooey(show_restart_button=False)
 def main():
-    parser = argparse.ArgumentParser(usage='Choose arguments.')
+    parser = GooeyParser(description="Program will combine all images in current folder into combined.jpg.")
     parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="vertical", help="Choose combine method: vertical, horizontal or custom(rectangular).")
     parser.add_argument('--custom_row_length', type=int, default=1, help='Only for custom method. Choose how many images are combined in each row.')
-    parser.add_argument("--separator_color", choices=["black", "white", "red", "blue"], default="black", help="Choose separator color.")
-    parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.')
+    parser.add_argument('--separator_color', default="#000000", help="Choose separator color.", widget='ColourChooser') 
+    parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.', widget='Slider')
     parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
 
@@ -95,14 +96,7 @@ def main():
     if not files:
         exit('There are no supported image files in the folder.')
 
-    if args.separator_color == 'black':
-        separator_color = (0, 0, 0)
-    elif args.separator_color == 'white':
-        separator_color = (255, 255, 255)
-    elif args.separator_color == 'red':
-        separator_color = (255, 0, 0)
-    elif args.separator_color == 'blue':
-        separator_color = (0, 0, 255)
+    separator_color = ImageColor.getcolor(args.separator_color, "RGB")
 
     print('Starting')
     combiner = ImageCombiner(separator_color, args.separator_width)
