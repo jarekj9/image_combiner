@@ -1,19 +1,14 @@
 #!/usr/bin/bash
 
 import os
-import math 
+import math
 import argparse
 from typing import List, Callable
-from itertools import cycle
 from PIL import Image
-from PIL import ImageDraw
-from PIL import Image,ImageColor
-from PIL import ImageFont
 from gooey import Gooey
 
 
 class ImageCombiner:
-
 
     def __init__(self, separator_color, separator_width):
         self.separator_color = separator_color
@@ -42,14 +37,14 @@ class ImageCombiner:
         im_combined = Image.new("RGB", (1, 1), (255, 255, 255))
         row_combined = Image.new("RGB", (1, 1), (255, 255, 255))
         image_rows = math.ceil(len(files) / row_images_count)
-        
+
         print(f'Files: {len(files)}, image rows: {image_rows}, images in row: {row_images_count}')
         for row_index in range(image_rows):
             next_range_start = row_index * row_images_count
             next_range_stop = row_index * row_images_count + row_images_count
 
             print(f'Processing row: {row_index + 1} of {row_images_count}')
-            row_combined = self.combine_in_line(files[next_range_start : next_range_stop])
+            row_combined = self.combine_in_line(files[next_range_start: next_range_stop])
 
             if row_index == 0:
                 im_combined = row_combined
@@ -68,20 +63,20 @@ class ImageCombiner:
             im = Image.open(files[image_index])
             print(f'Spec: {im.format}, {im.height}x{im.width}')
             if image_index == 0:
-                im_combined = im 
+                im_combined = im
                 continue
             im_combined = combine_method(im_combined, im)
         return im_combined
 
 
 def give_filenames(name: str):
-	filenames=[]
-	all_files=os.listdir('./')
-	
-	for file in all_files:
-		if name.lower() in file.lower():
-			filenames.append(file)
-	return filenames
+    filenames = []
+    all_files = os.listdir('./')
+
+    for file in all_files:
+        if name.lower() in file.lower():
+            filenames.append(file)
+    return filenames
 
 
 @Gooey
@@ -91,7 +86,7 @@ def main():
     parser.add_argument('--custom_row_length', type=int, default=1, help='Only for custom method. Choose how many images are combined in each row.')
     parser.add_argument("--separator_color", choices=["black", "white", "red", "blue"], default="black", help="Choose separator color.")
     parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.')
-    parser.add_argument('--version','-v', action='version', version='%(prog)s 1.0')
+    parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
 
     files = []
@@ -127,6 +122,6 @@ def main():
     im_combined.save("combined.jpg")
     print('Done.\n')
 
+
 if __name__ == '__main__':
     main()
-
