@@ -79,21 +79,30 @@ def give_filenames(name: str):
             filenames.append(file)
     return filenames
 
+def calculte_row_length(image_count: int, aspect_ratio: float) -> int:
+    '''Calculate how many images should be in a row,
+    aspect_ratio is images number to images number, not pixels'''
+    row_length = round(math.sqrt(aspect_ratio * image_count))
+    return row_length
+
 @Gooey(show_restart_button=False)
 def main():
-    parser = GooeyParser(description="Program will combine all images in current folder into combined.jpg.")
-    parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="vertical", help="Choose combine method: vertical, horizontal or custom(rectangular).")
-    parser.add_argument('--custom_row_length', type=int, default=1, help='Only for custom method. Choose how many images are combined in each row.')
-    parser.add_argument('--separator_color', default="#000000", help="Choose separator color.", widget='ColourChooser') 
-    parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.', widget='Slider')
-    parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
-    args = parser.parse_args()
-
     files = []
     for format in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
         files += give_filenames(format)
     if not files:
         sys.exit('There are no supported image files in the folder.')
+
+    default_row_length = calculte_row_length(len(files), aspect_ratio=3/2)
+
+    parser = GooeyParser(description="Program will combine all images in current folder into combined.jpg."
+        f"\nThere are {len(files)} images in the folder, suggested row length in custom method is {default_row_length}.")
+    parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="custom", help="Choose combine method: vertical, horizontal or custom(rectangular).")
+    parser.add_argument('--custom_row_length', type=int, default=default_row_length, help='Only for custom method. Choose how many images are combined in each row.')
+    parser.add_argument('--separator_color', default="#000000", help="Choose separator color.", widget='ColourChooser') 
+    parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.', widget='Slider')
+    parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
+    args = parser.parse_args()
 
     separator_color = ImageColor.getcolor(args.separator_color, "RGB")
 
@@ -115,6 +124,10 @@ def main():
     im_combined.save("combined.jpg")
     print('Done.\n')
 
-
 if __name__ == '__main__':
     main()
+
+
+
+
+    
