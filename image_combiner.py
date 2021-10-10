@@ -90,8 +90,6 @@ def main():
     files = []
     for format in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
         files += give_filenames(format)
-    if not files:
-        sys.exit('There are no supported image files in the folder.')
 
     default_row_length = calculte_row_length(len(files), aspect_ratio=3/2)
 
@@ -99,7 +97,7 @@ def main():
         f"\nThere are {len(files)} images in the folder, suggested row length in custom method is {default_row_length}.")
     parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="custom", help="Choose combine method: vertical, horizontal or custom(rectangular).")
     parser.add_argument('--custom_row_length', type=int, default=default_row_length, help='Only for custom method. Choose how many images are combined in each row.')
-    parser.add_argument('--separator_color', default="#000000", help="Choose separator color.", widget='ColourChooser') 
+    parser.add_argument('--separator_color', default="#000000", help="Choose separator color, default is #000000.", widget='ColourChooser') 
     parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.', widget='Slider')
     parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
@@ -108,6 +106,10 @@ def main():
 
     print('Starting')
     combiner = ImageCombiner(separator_color, args.separator_width)
+
+    if not files:
+        print('There are no supported image files in the folder. Press any key.')
+        sys.exit()
 
     if args.method == "custom":
         im_combined = combiner.custom_combine(files, args.custom_row_length)
