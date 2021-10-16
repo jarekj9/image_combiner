@@ -85,6 +85,14 @@ def calculte_row_length(image_count: int, aspect_ratio: float) -> int:
     row_length = round(math.sqrt(aspect_ratio * image_count))
     return row_length
 
+def resize_to_percent(im: Image, size_percent: int) -> Image:
+    '''Resize image to some percent of original'''
+    width, height  = im.size
+    output_width = int(width * size_percent * 0.01)
+    output_height = int(height * size_percent * 0.01)
+    im = im.resize((output_width, output_height), Image.BICUBIC)
+    return im
+
 @Gooey(show_restart_button=False)
 def main():
     files = []
@@ -95,10 +103,12 @@ def main():
 
     parser = GooeyParser(description="Program will combine all images in current folder into combined.jpg."
         f"\nThere are {len(files)} images in the folder, suggested row length in custom method is {default_row_length}.")
-    parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="custom", help="Choose combine method: vertical, horizontal or custom(rectangular).")
+    parser.add_argument("--method", choices=["vertical", "horizontal", "custom"], default="custom", help="Combine method: vertical, horizontal or custom(rectangular).")
     parser.add_argument('--custom_row_length', type=int, default=default_row_length, help='Only for custom method. Choose how many images are combined in each row.')
-    parser.add_argument('--separator_color', default="#000000", help="Choose separator color, default is #000000.", widget='ColourChooser') 
-    parser.add_argument('--separator_width', type=int, default=20, help='Choose separator width.', widget='Slider')
+    parser.add_argument('--separator_color', default="#000000", help="Separator color, default is #000000.", widget='ColourChooser') 
+    parser.add_argument('--separator_width', type=int, default=20, help='Separator width (number of pixels).', widget='Slider')
+    parser.add_argument('--quality', type=int, default=95, help='Jpeg output quality, standard is 95', widget='Slider')
+    parser.add_argument('--resolution_percent', type=int, default=100, help='Output resolution in % of original image', widget='Slider', gooey_options={'min': 1, 'max': 300})
     parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
 
@@ -123,7 +133,9 @@ def main():
         im_combined = combiner.combine_in_line(files, combine_method=combiner.combine_vertical)
 
     print('Saving image')
-    im_combined.save("combined.jpg")
+    if args.resolution_percent != 100:
+        im_combined = resize_to_percent(im_combined, args.resolution_percent)
+    im_combined.save("combined.jpg", quality=args.quality)
     print('Done.\n')
 
 if __name__ == '__main__':
