@@ -3,6 +3,7 @@
 Simple Python image combiner, using PIL and Gooey.
 
 Combines all images in local folder vertically/horizontally or in custom rectangular shape with specified separator width and color.
+Can resize images before merge to some max width/height, keeping aspect ratio.
 Accepts jpg, png, bmp, gif. Outputs jpg.
 Uses simple automatic GUI based on argparse configuration.
 
