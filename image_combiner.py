@@ -7,6 +7,7 @@ from typing import List, Callable
 from PIL import Image, ImageColor
 from gooey import Gooey
 from gooey import GooeyParser
+import argparse
 
 
 class ImageCombiner:
@@ -73,36 +74,38 @@ class ImageCombiner:
             im_combined = combine_method(im_combined, im)
         return im_combined
 
-def give_filenames(name: str)-> list[str]:
-    filenames = []
-    all_files = os.listdir('./')
+class Helpers:
 
-    for file in all_files:
-        if name.lower() in file.lower():
-            filenames.append(file)
-    return filenames
+    @staticmethod
+    def give_filenames(name: str)-> list[str]:
+        filenames = []
+        all_files = os.listdir('./')
 
-def calculte_row_length(image_count: int, aspect_ratio: float) -> int:
-    '''Calculate how many images should be in a row,
-    aspect_ratio is images number to images number, not pixels'''
-    row_length = round(math.sqrt(aspect_ratio * image_count))
-    return row_length
+        for file in all_files:
+            if name.lower() in file.lower():
+                filenames.append(file)
+        return filenames
 
-def resize_to_percent(im: Image, size_percent: int) -> Image:
-    '''Resize image to some percent of original'''
-    width, height  = im.size
-    output_width = int(width * size_percent * 0.01)
-    output_height = int(height * size_percent * 0.01)
-    im = im.resize((output_width, output_height), Image.BICUBIC)
-    return im
+    @staticmethod
+    def calculte_row_length(image_count: int, aspect_ratio: float) -> int:
+        '''Calculate how many images should be in a row,
+        aspect_ratio is images number to images number, not pixels'''
+        row_length = round(math.sqrt(aspect_ratio * image_count))
+        return row_length
+
+    @staticmethod
+    def resize_to_percent(im: Image, size_percent: int) -> Image:
+        '''Resize image to some percent of original'''
+        width, height  = im.size
+        output_width = int(width * size_percent * 0.01)
+        output_height = int(height * size_percent * 0.01)
+        im = im.resize((output_width, output_height), Image.BICUBIC)
+        return im
+
 
 @Gooey(advanced=True, show_restart_button=False,  tabbed_groups=True, required_cols=1)
-def main():
-    files: list[str] = []
-    for format in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
-        files += give_filenames(format)
-
-    default_row_length = calculte_row_length(len(files), aspect_ratio=3/2)
+def argument_parser(files: list[str]) -> argparse.Namespace:
+    default_row_length = Helpers.calculte_row_length(len(files), aspect_ratio=3/2)
 
     parser = GooeyParser(description="Program will combine all images in current folder into combined.jpg."
         f"\nThere are {len(files)} images in the folder, suggested row length in custom method is {default_row_length}.")
@@ -114,9 +117,10 @@ def main():
     method_group.add_argument('--separator_color', default="#000000", help="Separator color, default is #000000.", widget='ColourChooser') 
     method_group.add_argument('--separator_width', type=int, default=20, help='Separator width (number of pixels).', widget='Slider')
     
-    quality_group = parser.add_argument_group("Output quality", "Choose output image quality.")
-    quality_group.add_argument('--quality', type=int, default=95, help='Jpeg output quality, standard is 95', widget='Slider')
-    quality_group.add_argument('--resolution_percent', type=int, default=100, help='Output resolution in % of original image', widget='Slider', gooey_options={'min': 1, 'max': 300})
+    output_group = parser.add_argument_group("Output quality/format", "Choose output image quality and format.")
+    output_group.add_argument('--quality', type=int, default=95, help='Jpeg output quality, standard is 95', widget='Slider')
+    output_group.add_argument('--resolution_percent', type=int, default=100, help='Output resolution in % of original image', widget='Slider', gooey_options={'min': 1, 'max': 300})
+    output_group.add_argument('--output_format', choices=['jpg', 'png', 'gif', 'bmp'], default='jpg', widget="Dropdown")
 
     every_image_group = parser.add_argument_group("Pre-combine actions", "Options applied to every image, before merge")
     every_image_size_group = every_image_group.add_argument_group("Max size", "Valid, if 'resize_every_image' is checked.", gooey_options={ 'show_border': True, 'columns': 2 })
@@ -127,6 +131,14 @@ def main():
         gooey_options={'validator': {'test': '1 <= int(user_input) <= 100000','message': 'Must be between 1 and 100000'}})
     
     args = parser.parse_args()
+    return args
+
+
+def main():
+    files: list[str] = []
+    for format in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
+        files += Helpers.give_filenames(format)
+    args = argument_parser(files)
 
     separator_color = ImageColor.getcolor(args.separator_color, "RGB")
     single_image_max_size = (args.single_image_max_width, args.single_image_max_height) if args.resize_every_image else False
@@ -150,8 +162,8 @@ def main():
 
     print('Saving image')
     if args.resolution_percent != 100:
-        im_combined = resize_to_percent(im_combined, args.resolution_percent)
-    im_combined.save("combined.jpg", quality=args.quality)
+        im_combined = Helpers.resize_to_percent(im_combined, args.resolution_percent)
+    im_combined.save(f"combined.{args.output_format}", quality=args.quality)
     print('Done.\n')
 
 if __name__ == '__main__':
